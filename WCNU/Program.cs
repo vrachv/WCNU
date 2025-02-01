@@ -4,19 +4,22 @@ class Program
 {
     private const string PatchedName = "wow-wcnu";
 
-    private static readonly Patch CharacterNameUnlockPatch = new()
-    {
-        Name = "Character Name Unlock",
-        Pattern = [0x75, 0x37, 0x8B, 0x4D, 0x0C, 0x85, 0xC9, 0x74, 0x1C, 0x0F, 0xB7, 0x01, 0x66, 0x85, 0xC0, 0x74],
-        Replace = [0xEB]
-    };
-
-    private static readonly Patch DeclensionsNameUnlockPatch = new()
-    {
-        Name = "Declensions Name Unlock",
-        Pattern = [0x0F, 0x85, 0xDB, 0x00, 0x00, 0x00, 0x83, 0xC6, 0x01, 0x83, 0xFE, 0x05, 0x7C, 0xCE, 0x33, 0xF6],
-        Replace = [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]
-    };
+    private static readonly Patch[] Patches =
+    [
+        new()
+        {
+            Name = "Character Name Unlock",
+            Pattern = [0x75, 0x37, 0x8B, 0x4D, 0x0C, 0x85, 0xC9, 0x74, 0x1C, 0x0F, 0xB7, 0x01, 0x66, 0x85, 0xC0, 0x74],
+            Replace = [0xEB]
+        },
+        
+        new()
+        {
+            Name = "Declensions Name Unlock",
+            Pattern = [0x0F, 0x85, 0xDB, 0x00, 0x00, 0x00, 0x83, 0xC6, 0x01, 0x83, 0xFE, 0x05, 0x7C, 0xCE, 0x33, 0xF6],
+            Replace = [0x90, 0x90, 0x90, 0x90, 0x90, 0x90]
+        }
+    ];
 
     private static void Main(string[] args)
     {
@@ -34,12 +37,9 @@ class Program
             PressAnyKeyToExit();
             return;
         }
-        
-        var patchesApplied = false;
-        byte[] originalBytes = File.ReadAllBytes(path);
 
-        patchesApplied |= TryPatch(ref originalBytes, CharacterNameUnlockPatch);
-        patchesApplied |= TryPatch(ref originalBytes, DeclensionsNameUnlockPatch);
+        var originalBytes = File.ReadAllBytes(path);
+        var patchesApplied = Patches.Aggregate(false, (current, patch) => current | TryPatch(ref originalBytes, patch));
 
         if (patchesApplied)
         {
