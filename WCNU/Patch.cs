@@ -12,7 +12,7 @@ public class Patch
         var result = new byte[Pattern.Length];
         Array.Copy(Pattern, result, Pattern.Length);
         
-        for (var i = 0; i < Replace.Length; i++)
+        for (var i = Offset; i < Replace.Length; i++)
         {
             result[i] = Replace[i];
         }
